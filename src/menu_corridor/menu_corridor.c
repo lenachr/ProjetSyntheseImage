@@ -69,12 +69,12 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if(mode == 0){
 		// Clic sur jouer
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn01Xmin && Xpos < btn01Xmax && Ypos > btn01Ymin && Ypos < btn01Ymax){
-			mode = 1;
+			mode = 2;
 			printf("Jouer ! \n");
 		}
 		// Clic sur options
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn02Xmin && Xpos < btn02Xmax && Ypos > btn02Ymin && Ypos < btn02Ymax){
-			mode = 2;
+			mode = 1;
 			printf("Options \n");
 		}
 		// Clic sur quitter
@@ -193,20 +193,19 @@ int main(int argc, char** argv)
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	// if(mode == 0){	
-	unsigned char* imageMenu[];
-	= stbi_load("doc/JEU_MENU_V0.jpg", &x, &y, &n, c);
-	erreur(imageMenu);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, imageMenu);
-	stbi_image_free(imageMenu);
-	// }
+	if(mode == 0){	
+		unsigned char* imageMenu = stbi_load("doc/JEU_MENU_V0.jpg", &x, &y, &n, c);
+		erreur(imageMenu);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, imageMenu);
+		stbi_image_free(imageMenu);
+	}
 
-	// if(mode == 2){
+	if(mode == 2){
 		unsigned char* imageFinEchec = stbi_load("doc/JEU_ECHEC.png", &x, &y, &n, c);
 		erreur(imageFinEchec);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, imageFinEchec);
 		stbi_image_free(imageFinEchec);
-	// }
+	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glfwSetWindowSizeCallback(window,onWindowResized);
@@ -236,13 +235,14 @@ int main(int argc, char** argv)
 		/* Initial scenery setup */
 
 		// Si le mode de jeu est à 0 : on est donc dans le menu
-		if(mode == 0){
+		if(mode == 0){ // page menu
 			glEnable(GL_TEXTURE_2D); // Active la texture
 			glBindTexture(GL_TEXTURE_2D, texture);
 			glBegin(GL_POLYGON);
 				glTexCoord3f(0,0,0);
 				glVertex3f(-15.,0.,15.);
-
+				//glVertex3f(-18.,0.,18.);
+				
 				glTexCoord3f(1,0,0);
 				glVertex3f(15.,0.,15.);
 
@@ -255,12 +255,23 @@ int main(int argc, char** argv)
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDisable(GL_TEXTURE_2D);
 		}
-
 		if(mode == 1){
-			drawSquare();
+			glPushMatrix();
+				glColor3f(0,0,1);
+				glScalef(32,1,25);
+				glTranslatef(0,70,0); //valeur à modifier
+				drawSquare();
+			glPopMatrix();
+			glPushMatrix();
+				glColor3f(1,1,1);
+				glTranslatef(16,35,0);
+				glRotatef(90,0,0,1);
+				glScalef(75,1,25);
+				drawSquare();
+			glPopMatrix();
 		}
 
-		if(mode == 2){
+		if(mode == 2){ //page de fin
 			glEnable(GL_TEXTURE_2D); // Active la texture
 			glBindTexture(GL_TEXTURE_2D, texture);
 			glBegin(GL_POLYGON);
