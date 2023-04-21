@@ -67,13 +67,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if(mode == 0){
 		// Clic sur jouer
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn01Xmin && Xpos < btn01Xmax && Ypos > btn01Ymin && Ypos < btn01Ymax){
-			mode = 1;
-			printf("Jouer ! \n");
+			mode = 2;
+			printf("Options \n");
 		}
 		// Clic sur options
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn02Xmin && Xpos < btn02Xmax && Ypos > btn02Ymin && Ypos < btn02Ymax){
-			mode = 2;
-			printf("Options \n");
+			mode = 1;
+			printf("Jouer ! \n");
 		}
 		// Clic sur quitter
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn03Xmin && Xpos < btn03Xmax && Ypos > btn03Ymin && Ypos < btn03Ymax){
@@ -175,6 +175,9 @@ int main(int argc, char** argv)
 	// Charger image fin réussite
 	texture[1] = loadTexture("doc/JEU_ECHEC.png");
 
+	// Charger image fin réussite
+	texture[2] = loadTexture("doc/POKEBALL_TEXTURE.png");
+
 	glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
 
@@ -220,8 +223,13 @@ int main(int argc, char** argv)
 			glEnd();
 		}
 
-		if(mode == 1){
-			drawSquare();
+		if(mode == 1){			
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, texture[2]);
+            drawSphere();
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_TEXTURE_2D);
+			drawRacket();
 		}
 
 		if(mode == 2){
