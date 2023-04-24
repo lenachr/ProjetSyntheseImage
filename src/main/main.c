@@ -5,10 +5,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdbool.h>
 #include "3D_tools.h"
 #include "draw_scene.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+//#include "ball_racket.h"
 
 /* Window properties */
 static const unsigned int WINDOW_WIDTH = 1000;
@@ -20,8 +22,8 @@ static float aspectRatio = 1.0;
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
 
 /* IHM flag */
-static int flag_animate_rot_scale = 0;
-static int flag_animate_rot_arm = 0;
+// static int flag_animate_rot_scale = 0;
+// static int flag_animate_rot_arm = 0;
 
 /* Error handling function */
 void onError(int error, const char* description)
@@ -70,12 +72,12 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		// Clic sur jouer
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn01Xmin && Xpos < btn01Xmax && Ypos > btn01Ymin && Ypos < btn01Ymax){
 			mode = 2;
-			printf("Jouer ! \n");
+			printf("Options \n");
 		}
 		// Clic sur options
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn02Xmin && Xpos < btn02Xmax && Ypos > btn02Ymin && Ypos < btn02Ymax){
 			mode = 1;
-			printf("Options \n");
+			printf("Jouer ! \n");
 		}
 		// Clic sur quitter
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn03Xmin && Xpos < btn03Xmax && Ypos > btn03Ymin && Ypos < btn03Ymax){
@@ -106,21 +108,8 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS) {
 		switch(key) {
-			case GLFW_KEY_A :
 			case GLFW_KEY_ESCAPE :
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				break;
-			case GLFW_KEY_L :
-				glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-				break;
-			case GLFW_KEY_P :
-				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-				break;
-			case GLFW_KEY_R :
-				flag_animate_rot_arm = 1-flag_animate_rot_arm;
-				break;
-			case GLFW_KEY_T :
-				flag_animate_rot_scale = 1-flag_animate_rot_scale;
 				break;
 			case GLFW_KEY_KP_9 :
 				if(dist_zoom<100.0f) dist_zoom*=1.1;
@@ -158,6 +147,37 @@ void erreur(unsigned char *image){
 	}
 }
 
+// générer texture
+GLuint loadTexture(const char* imageName){
+	int x = 400;
+	int y = 400;
+	int n = 200;
+	int c = 0;
+	GLuint texture;
+	glGenTextures(1, &texture);
+	unsigned char* image = stbi_load(imageName, &x, &y, &n, c);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	erreur(image);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	stbi_image_free(image);
+	return texture;
+}
+
+//gére l'apparition du mur
+bool wall = true;
+
+void speed_wall(float speed){
+	if(wall == true){
+		glPushMatrix();
+		glColor3f(0.7,0.8,1); 
+		glScalef(10,7,23);
+		glTranslatef(-0.5,speed,0); 
+		drawSquare();
+		glPopMatrix();
+	}
+}
+
 int main(int argc, char** argv)
 {
 	/* GLFW initialisation */
@@ -169,6 +189,8 @@ int main(int argc, char** argv)
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, NULL, NULL);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
 	if (!window)
 	{
 		// If no context created : exit !
@@ -181,32 +203,17 @@ int main(int argc, char** argv)
 
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-	//########CHARGER_IMAGE_MENU###################
-	int x = 400;
-	int y = 400;
-	int n = 200;
-	int c = 0;
+	//########_CHARGER_IMAGES_###################
+	GLuint texture[32];
 
+	// Charger image menu
+	texture[0] = loadTexture("doc/JEU_MENU_V0.jpg");
 
-	GLuint texture;
-	glGenTextures(2, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// Charger image fin réussite
+	texture[1] = loadTexture("doc/JEU_ECHEC.png");
 
-	if(mode == 0){	
-		unsigned char* imageMenu = stbi_load("doc/JEU_MENU_V0.jpg", &x, &y, &n, c);
-		erreur(imageMenu);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, imageMenu);
-		stbi_image_free(imageMenu);
-	}
-
-	if(mode == 2){
-		unsigned char* imageFinEchec = stbi_load("doc/JEU_ECHEC.png", &x, &y, &n, c);
-		erreur(imageFinEchec);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, imageFinEchec);
-		stbi_image_free(imageFinEchec);
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
+	// Charger image fin réussite
+	texture[2] = loadTexture("doc/POKEBALL_TEXTURE.png");
 
 	glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
@@ -237,7 +244,7 @@ int main(int argc, char** argv)
 		// Si le mode de jeu est à 0 : on est donc dans le menu
 		if(mode == 0){ // page menu
 			glEnable(GL_TEXTURE_2D); // Active la texture
-			glBindTexture(GL_TEXTURE_2D, texture);
+			glBindTexture(GL_TEXTURE_2D, texture[0]);
 			glBegin(GL_POLYGON);
 				glTexCoord3f(0,0,0);
 				glVertex3f(-15.,0.,15.);
@@ -256,24 +263,67 @@ int main(int argc, char** argv)
 			glDisable(GL_TEXTURE_2D);
 		}
 		if(mode == 1){
+			//mur fond
 			glPushMatrix();
-				glColor3f(0,0,1);
+				glColor3f(1,1,1); 
 				glScalef(32,1,25);
-				glTranslatef(0,70,0); //valeur à modifier
+				glTranslatef(0,68,0); //70 sur le PC normal
 				drawSquare();
 			glPopMatrix();
+			//mur droit
 			glPushMatrix();
-				glColor3f(1,1,1);
+				glColor3f(0,0,1); 
 				glTranslatef(16,35,0);
 				glRotatef(90,0,0,1);
 				glScalef(75,1,25);
 				drawSquare();
 			glPopMatrix();
+			//mur gauche
+			glPushMatrix(); 
+				glColor3f(0,0,1); 
+				glTranslatef(-16,35,0);
+				glRotatef(90,0,0,1);
+				glScalef(75,1,25);
+				drawSquare();
+			glPopMatrix();
+			//mur haut
+			glPushMatrix();
+				glColor3f(0,0.8,1); 
+				glTranslatef(0,35,12.5);
+				glRotatef(90,1,0,0);
+				glRotatef(90,0,1,0);
+				glScalef(75,1,32);
+				drawSquare();
+			glPopMatrix();
+			//mur bas
+			glPushMatrix();
+				glColor3f(0,0.8,1); 
+				glTranslatef(0,35,-12.5);
+				glRotatef(90,1,0,0);
+				glRotatef(90,0,1,0);
+				glScalef(75,1,32);
+				drawSquare();
+			glPopMatrix();
+
+			float speed = 90;
+			speed = speed-(10*startTime);
+			speed_wall(speed);
+			speed -= 10;
+			// if (speed < 0.5) {
+			// 	wall = false;
+			// }
+
+			glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, texture[2]);
+            drawSphere();
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_TEXTURE_2D);
+			drawRacket();
 		}
 
 		if(mode == 2){ //page de fin
 			glEnable(GL_TEXTURE_2D); // Active la texture
-			glBindTexture(GL_TEXTURE_2D, texture);
+			glBindTexture(GL_TEXTURE_2D, texture[1]);
 			glBegin(GL_POLYGON);
 				glTexCoord3f(0,0,0);
 				glVertex3f(-15.,0.,15.);
