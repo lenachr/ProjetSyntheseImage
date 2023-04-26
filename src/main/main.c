@@ -224,10 +224,10 @@ int main(int argc, char** argv)
 	texture[0] = loadTexture("doc/JEU_MENU_V0.jpg");
 
 	// Charger image fin réussite
-	texture[1] = loadTexture("doc/JEU_ECHEC.png");
+	texture[1] = loadTexture("doc/JEU_ECHEC.jpg");
 
 	// Charger image fin réussite
-	texture[2] = loadTexture("doc/POKEBALL_TEXTURE.png");
+	texture[2] = loadTexture("doc/POKEBALL_TEXTURE.jpg");
 
 	glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
@@ -254,15 +254,14 @@ int main(int argc, char** argv)
 		// drawFrame();
 
 		/* Initial scenery setup */
+		glEnable(GL_TEXTURE_2D); // Active la texture
 
 		// Si le mode de jeu est à 0 : on est donc dans le menu
 		if(mode == 0){ // page menu
-			glEnable(GL_TEXTURE_2D); // Active la texture
 			glBindTexture(GL_TEXTURE_2D, texture[0]);
 			glBegin(GL_POLYGON);
 				glTexCoord3f(0,0,0);
 				glVertex3f(-15.,0.,15.);
-				//glVertex3f(-18.,0.,18.);
 				
 				glTexCoord3f(1,0,0);
 				glVertex3f(15.,0.,15.);
@@ -273,9 +272,8 @@ int main(int argc, char** argv)
 				glTexCoord3f(0,1,0);
 				glVertex3f(-15.,0.,-15.);
 			glEnd();
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glDisable(GL_TEXTURE_2D);
 		}
+
 		if(mode == 1){
 			//mur fond
 			glPushMatrix();
@@ -320,7 +318,6 @@ int main(int argc, char** argv)
 			glPopMatrix();
 
 			float speed = 80;
-			// float speed = 40;
 			if(move == 1){
 				speed = speed-(5*startTime);
 				speed -= 10;
@@ -330,16 +327,13 @@ int main(int argc, char** argv)
 			// 	wall = false;
 			// }
 
-			glEnable(GL_TEXTURE_2D);
+			// glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, texture[2]);
             drawSphere();
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glDisable(GL_TEXTURE_2D);
 			drawRacket();
 		}
 
 		if(mode == 2){ //page de fin
-			glEnable(GL_TEXTURE_2D); // Active la texture
 			glBindTexture(GL_TEXTURE_2D, texture[1]);
 			glBegin(GL_POLYGON);
 				glTexCoord3f(0,0,0);
@@ -354,10 +348,10 @@ int main(int argc, char** argv)
 				glTexCoord3f(0,1,0);
 				glVertex3f(-15.,0.,-15.);
 			glEnd();
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glDisable(GL_TEXTURE_2D);
 		}
-	// glDeleteTextures(2, &texture);
+		
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
 
 		/* Scene rendering */
 
