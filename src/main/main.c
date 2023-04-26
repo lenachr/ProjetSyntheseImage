@@ -42,6 +42,9 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 	glMatrixMode(GL_MODELVIEW);
 }
 
+// Pour permettre d'avancer en appuyant sur la touche flèche du haut
+static int move = 0;
+
 //Gestions des différentes étapes : menu = 0, jeu = 1, fenêtre de fin echec = 2, fenêtre de fin reussite = 3
 // On pourra juste avoir une image différente pour les deux fins avec les boutons et les fonctionnalités identiques
 int mode = 0;
@@ -71,18 +74,20 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if(mode == 0){
 		// Clic sur jouer
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn01Xmin && Xpos < btn01Xmax && Ypos > btn01Ymin && Ypos < btn01Ymax){
-			mode = 2;
-			printf("Options \n");
+			mode = 1;
+			printf("Jouer ! \n");
 		}
 		// Clic sur options
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn02Xmin && Xpos < btn02Xmax && Ypos > btn02Ymin && Ypos < btn02Ymax){
-			mode = 1;
-			printf("Jouer ! \n");
+			mode = 2;
+			printf("Options \n");
+			
 		}
 		// Clic sur quitter
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn03Xmin && Xpos < btn03Xmax && Ypos > btn03Ymin && Ypos < btn03Ymax){
 			// On ferme la fenêtre
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
+			printf("Quitter \n");
 		}
 	}
 	// Si le mode de jeu est à 1 : on est donc dans le jeu
@@ -93,7 +98,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if(mode == 2 || mode == 3){
 		// Clic sur rejouer
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && Xpos > btn02Xmin && Xpos < btn02Xmax && Ypos > btn02Ymin && Ypos < btn02Ymax){
-			mode = 0;
+			// mode = 0;
 			printf("Options \n");
 		}
 		// Clic sur quitter
@@ -120,8 +125,9 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				printf("Zoom is %f\n",dist_zoom);
 				break;
 			case GLFW_KEY_UP :
-				if (phy>2) phy -= 2;
-				printf("Phy %f\n",phy);
+				move = 1-move;
+				// if (phy>2) phy -= 2;
+				// printf("Phy %f\n",phy);
 				break;
 			case GLFW_KEY_DOWN :
 				if (phy<=88.) phy += 2;
@@ -133,6 +139,14 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			case GLFW_KEY_RIGHT :
 				theta += 5;
 				break;
+			default: fprintf(stdout,"Touche non gérée (%d)\n",key);
+		}
+	}
+	if (action == GLFW_RELEASE){
+		switch(key) {
+			case GLFW_KEY_UP :
+				move = 0;
+				break;	
 			default: fprintf(stdout,"Touche non gérée (%d)\n",key);
 		}
 	}
@@ -305,11 +319,14 @@ int main(int argc, char** argv)
 				drawSquare();
 			glPopMatrix();
 
-			float speed = 90;
-			speed = speed-(10*startTime);
+			float speed = 80;
+			// float speed = 40;
+			if(move == 1){
+				speed = speed-(5*startTime);
+				speed -= 10;
+			}
 			speed_wall(speed);
-			speed -= 10;
-			// if (speed < 0.5) {
+			// if (speed < -1) {
 			// 	wall = false;
 			// }
 
