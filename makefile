@@ -10,13 +10,9 @@ OBJDIR	= obj/
 # Fichiers projet
 GLOB_OBJ_TD= $(OBJDIR)3D_tools.o
 
-# Fichiers menu
-OBJ_menu= $(GLOB_OBJ_TD) $(OBJDIR)menu/draw_scene.o $(OBJDIR)menu.o
-EXEC_menu= menu.out
-
-# Fichiers exercice 02
-OBJ_MENU_CORRIDOR= $(GLOB_OBJ_TD) $(OBJDIR)menu_corridor/draw_scene.o $(OBJDIR)menu_corridor/menu_corridor.o
-EXEC_MENU_CORRIDOR= menu_corridor.out
+# Fichiers main
+OBJ_MAIN= $(GLOB_OBJ_TD) $(OBJDIR)main/draw_scene.o $(OBJDIR)main/main.o
+EXEC_MAIN= main.out
 
 # Fichiers exercice 03
 OBJ_TD04_EX03= $(GLOB_OBJ_TD) $(OBJDIR)ex03/draw_scene.o $(OBJDIR)ex03/td04_ex03.o
@@ -28,13 +24,10 @@ EXEC_TD04_EX04= td04_ex04.out
 
 # Regles compilation TD 04
 
-all : menu, menu_corridor, ex03, ex04
+all : menu, main, ex03, ex04
 
-menu : $(OBJ_menu)
-	$(CC) $(CFLAGS) $(OBJ_menu) -o $(BINDIR)$(EXEC_menu) $(LDFLAGS)
-	
-menu_corridor : $(OBJ_MENU_CORRIDOR)
-	$(CC) $(CFLAGS) $(OBJ_MENU_CORRIDOR) -o $(BINDIR)$(EXEC_MENU_CORRIDOR) $(LDFLAGS)
+main : $(OBJ_MAIN)
+	$(CC) $(CFLAGS) $(OBJ_MAIN) -o $(BINDIR)$(EXEC_MAIN) $(LDFLAGS)
 	
 ex03 : $(OBJ_TD04_EX03)
 	$(CC) $(CFLAGS) $(OBJ_TD04_EX03) -o $(BINDIR)$(EXEC_TD04_EX03) $(LDFLAGS)
