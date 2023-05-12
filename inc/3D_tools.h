@@ -10,8 +10,9 @@
 #define NB_SEG_CIRCLE 64
 
 /* Camera parameters and functions */
-static const float Z_NEAR = 0.1f;
-static const float Z_FAR = 100.f;
+// static const float Z_NEAR = 29.9f;
+static const float Z_NEAR = 10.9f;
+static const float Z_FAR = 400.f;
 extern float theta;      // Angle between x axis and viewpoint
 extern float phy  ;      // Angle between z axis and viewpoint
 extern float dist_zoom ; // Distance between origin and viewpoint
