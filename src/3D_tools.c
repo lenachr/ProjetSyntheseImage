@@ -54,5 +54,8 @@ void drawCone() {
 }
 
 void drawSphere() {
-	gluSphere(gluNewQuadric(),1.0,NB_SEG_CIRCLE,NB_SEG_CIRCLE);
+  GLUquadricObj *quadricObj = gluNewQuadric();
+  gluQuadricTexture(quadricObj, GL_TRUE);
+  gluQuadricDrawStyle(quadricObj, GLU_FILL);
+  gluSphere(quadricObj, 1.0, NB_SEG_CIRCLE, NB_SEG_CIRCLE);
 }

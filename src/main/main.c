@@ -357,7 +357,11 @@ int main(int argc, char** argv)
 
 			// glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, texture[2]);
-            drawSphere();
+			glPushMatrix();
+				glRotatef(180,0,0,1);
+				glRotatef(180,0,1,0);
+            	drawSphere();
+			glPopMatrix();
 			drawRacket();
 		}
 
