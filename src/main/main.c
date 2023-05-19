@@ -12,6 +12,11 @@
 #include "stb_image.h"
 //#include "ball_racket.h"
 
+float racketX = 2;
+float racketZ = 2;
+float racketWidth = 1.5;
+float racketHeight = 1.5;
+
 /* Window properties */
 static const unsigned int WINDOW_WIDTH = 1000;
 static const unsigned int WINDOW_HEIGHT = 1000;
@@ -160,6 +165,22 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	}
 }
 
+//gère le calcul de la position de la souris/raquette
+void onMouseMove(GLFWwindow* window, double xpos, double ypos)
+{
+    float normX = (2.0f * xpos) / WINDOW_WIDTH - 1.0f;
+    float newRacketX = normX * 5.0f; // Position horizontale de la raquette
+    float normY = (2.0f * ypos) / WINDOW_HEIGHT - 1.0f;
+    float newRacketZ = -normY * 5.0f; // Position verticale de la raquette
+
+	// Vérifier les limites de la zone de jeu
+    if (newRacketX - racketWidth >= -6.1f && newRacketX + racketWidth <= 6.1f)
+        racketX = newRacketX;
+
+    if (newRacketZ - racketHeight >= -4.9f && newRacketZ + racketHeight <= 4.9f)
+        racketZ = newRacketZ;
+}
+
 void erreur(unsigned char *image){
 	if(image != NULL){
 		printf("reussi \n");
@@ -200,6 +221,26 @@ void speed_wall(float speed){
 	}
 }
 
+//gère la raquette
+void drawRacket(){
+
+            glTranslatef(racketX,-10.0, racketZ );
+            glScalef(racketWidth, 1.0, racketHeight);
+
+            glBegin(GL_LINES);
+            glColor3f(1,1,1);
+            glVertex3f(-racketWidth, 0, racketHeight);  // Coin supérieur gauche
+            glVertex3f(racketWidth, 0, racketHeight);   // Coin supérieur droit
+            glVertex3f(racketWidth, 0, racketHeight);   // Coin supérieur droit
+            glVertex3f(racketWidth, 0, -racketHeight);  // Coin inférieur droit
+            glVertex3f(racketWidth, 0, -racketHeight);  // Coin inférieur droit
+            glVertex3f(-racketWidth, 0, -racketHeight); // Coin inférieur gauche
+            glVertex3f(-racketWidth, 0, -racketHeight); // Coin inférieur gauche
+            glVertex3f(-racketWidth, 0, racketHeight);  // Coin supérieur gauche
+            glEnd();
+
+}
+
 int main(int argc, char** argv)
 {
 	/* GLFW initialisation */
@@ -222,6 +263,7 @@ int main(int argc, char** argv)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+	glfwSetCursorPosCallback(window, onMouseMove);
 
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
@@ -283,6 +325,11 @@ int main(int argc, char** argv)
 		}
 
 		if(mode == 1){
+
+			glPushMatrix();
+            	glTranslatef(racketX, 0.0, racketZ);
+            	drawRacket(racketX, 0.0, racketZ);
+            glPopMatrix();
 			//mur fond
 			glPushMatrix();
 				glColor3f(0,0,0); 
@@ -290,7 +337,8 @@ int main(int argc, char** argv)
 				glTranslatef(0,68,0); //70 sur le PC normal
 				drawSquare();
 			glPopMatrix();
-			//mur droit
+			//mur droit			
+            
 			for(float i=75;i>-1;i-=5){
 				float color = 1-i/75;
 				printf("%f = %f \n", i, color);
@@ -362,7 +410,6 @@ int main(int argc, char** argv)
 				glRotatef(180,0,1,0);
             	drawSphere();
 			glPopMatrix();
-			drawRacket();
 		}
 
 		if(mode == 2){ //page de fin
