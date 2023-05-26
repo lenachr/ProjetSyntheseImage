@@ -43,7 +43,17 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 }
 
 // Pour permettre d'avancer en appuyant sur la touche flèche du haut
-static int move = 0;
+// int move = 1;
+// double PausedTimeWalls = 0.0;
+// double currentTimeWalls = 0.001;
+// double lastPauseTime = 0.0;
+int move = 0;
+int firstStart = 0;
+int firstStop = 0;
+double currentTimeWalls = 1;
+double pausedBegin = 1;
+double pausedEnd = 0;
+double pausedTime = 0;
 
 //Gestions des différentes étapes : menu = 0, jeu = 1, fenêtre de fin echec = 2, fenêtre de fin reussite = 3
 // On pourra juste avoir une image différente pour les deux fins avec les boutons et les fonctionnalités identiques
@@ -125,9 +135,14 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				printf("Zoom is %f\n",dist_zoom);
 				break;
 			case GLFW_KEY_UP :
-				move = 1-move;
+				// move = 1-move;
+				// move = !move;
 				// if (phy>2) phy -= 2;
 				// printf("Phy %f\n",phy);
+				move = 1;
+            	// double currentPauseTime = glfwGetTime();
+            	// currentTimeWalls += currentPauseTime - lastPauseTime;
+            	// lastPauseTime = 0.0;
 				break;
 			case GLFW_KEY_DOWN :
 				if (phy<=88.) phy += 2;
@@ -146,6 +161,8 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 		switch(key) {
 			case GLFW_KEY_UP :
 				move = 0;
+            	// lastPauseTime = glfwGetTime();
+				// move = 0;
 				break;	
 			default: fprintf(stdout,"Touche non gérée (%d)\n",key);
 		}
@@ -187,25 +204,25 @@ GLuint loadTexture(const char* imageName){
 
 void speed_wall(float speed, int i){
 		glPushMatrix();
-			float color = (i/6.);
+			float color = 1-(speed/15.);
 			// printf("couleur : %d \n", color);
 			glColor3f(color,color,color); 
 			glScalef(10,7,25);
-			glTranslatef(-0.5,speed,0); 
+				glTranslatef(-0.5,speed,0); 
 			drawSquare();
 		glPopMatrix();
 }
 
-void displayWalls(float* walls, float speed, double startTime){
+void displayWalls(float* walls, float speed, double wallTime){
 	float speeds[6] = {speed, speed+10, speed+25, speed+30, speed+40, speed+50};
-	if(move == 1){
+	// if(move == 1){
 		float rotate = 0;
 		for(int i = 0; i<6; i++){
 			// printf("i : %f \n", i);
 			// bool display = true;
 			speed = speed + 10*i;
 			rotate = walls[i];
-			speeds[i] = speeds[i]-(5*startTime);
+			speeds[i] = speeds[i]-(5*wallTime);
 			// speeds[i] -= 10;
 			glPushMatrix();
 				glRotatef(rotate, 0, 1, 0);
@@ -214,7 +231,7 @@ void displayWalls(float* walls, float speed, double startTime){
 		}
 
 
-	}
+	// }
 }
 
 int main(int argc, char** argv)
@@ -268,6 +285,28 @@ int main(int argc, char** argv)
 	{
 		/* Get time (in second) at loop beginning */
 		double startTime = glfwGetTime();
+		
+
+		// Récupération du temps pour le mouvement des murs
+		if(move == 1 && firstStart == 0){
+			// paused = glfwGetTime()-paused;
+        	currentTimeWalls = ((currentTimeWalls + startTime - pausedTime)/2);
+		}else if(move == 0 && firstStop == 0){
+			// currentTimeWalls = currentTimeWalls;
+			pausedBegin = currentTimeWalls;
+			firstStart = 1;
+			firstStop = 1;
+		}else if(move == 0 && firstStop == 1){
+			pausedEnd = startTime;
+		}else if(move == 1 && firstStart == 1){
+			// currentTimeWalls = (pausedBegin + startTime)/2;
+			currentTimeWalls = pausedBegin;
+			startTime = pausedEnd - pausedBegin;
+			pausedTime = pausedEnd - pausedBegin;
+			firstStart = 0;
+			firstStop = 0;
+		}
+		printf("currentTimeWalls %f \n", currentTimeWalls);
 
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.2,0.0,0.0,0.0);
@@ -345,8 +384,12 @@ int main(int argc, char** argv)
 
 			float speed = 50;
 			float walls[6] = {0, 90, 180, 90, -90, 180};
-			displayWalls(walls, speed, startTime);
-
+			// if(!move){
+				displayWalls(walls, speed, currentTimeWalls);
+			// }else{
+				// PausedTimeWalls = currentTimeWalls;
+				// displayWalls(walls, speed, currentTimeWalls);
+			// }
 			// glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, texture[2]);
 			
