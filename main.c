@@ -43,10 +43,6 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 }
 
 // Pour permettre d'avancer en appuyant sur la touche flèche du haut
-// int move = 1;
-// double PausedTimeWalls = 0.0;
-// double currentTimeWalls = 0.001;
-// double lastPauseTime = 0.0;
 int move = 0;
 int firstStart = 0;
 int firstStop = 0;
@@ -135,14 +131,7 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				printf("Zoom is %f\n",dist_zoom);
 				break;
 			case GLFW_KEY_UP :
-				// move = 1-move;
-				// move = !move;
-				// if (phy>2) phy -= 2;
-				// printf("Phy %f\n",phy);
 				move = 1;
-            	// double currentPauseTime = glfwGetTime();
-            	// currentTimeWalls += currentPauseTime - lastPauseTime;
-            	// lastPauseTime = 0.0;
 				break;
 			case GLFW_KEY_DOWN :
 				if (phy<=88.) phy += 2;
@@ -161,8 +150,6 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 		switch(key) {
 			case GLFW_KEY_UP :
 				move = 0;
-            	// lastPauseTime = glfwGetTime();
-				// move = 0;
 				break;	
 			default: fprintf(stdout,"Touche non gérée (%d)\n",key);
 		}
@@ -199,13 +186,9 @@ GLuint loadTexture(const char* imageName){
 	return texture;
 }
 
-//gére l'apparition du mur
-// bool wall = true;
-
 void speed_wall(float speed, int i){
 		glPushMatrix();
 			float color = 1-(speed/15.);
-			// printf("couleur : %d \n", color);
 			glColor3f(color,color,color); 
 			glScalef(10,7,25);
 				glTranslatef(-0.5,speed,0); 
@@ -215,23 +198,16 @@ void speed_wall(float speed, int i){
 
 void displayWalls(float* walls, float speed, double wallTime){
 	float speeds[6] = {speed, speed+10, speed+25, speed+30, speed+40, speed+50};
-	// if(move == 1){
 		float rotate = 0;
 		for(int i = 0; i<6; i++){
-			// printf("i : %f \n", i);
-			// bool display = true;
 			speed = speed + 10*i;
 			rotate = walls[i];
 			speeds[i] = speeds[i]-(5*wallTime);
-			// speeds[i] -= 10;
 			glPushMatrix();
 				glRotatef(rotate, 0, 1, 0);
 				speed_wall(speeds[i], i);
 			glPopMatrix();
 		}
-
-
-	// }
 }
 
 int main(int argc, char** argv)
@@ -269,7 +245,6 @@ int main(int argc, char** argv)
 	texture[1] = loadTexture("doc/JEU_ECHEC.jpg");
 
 	// Charger image fin réussite
-	// texture[2] = loadTexture("doc/2k_earth_specular_map.tif");
 	texture[2] = loadTexture("doc/POKEBALL_TEXTURE.jpg");
 
 	glfwSetWindowSizeCallback(window,onWindowResized);
@@ -289,24 +264,20 @@ int main(int argc, char** argv)
 
 		// Récupération du temps pour le mouvement des murs
 		if(move == 1 && firstStart == 0){
-			// paused = glfwGetTime()-paused;
         	currentTimeWalls = ((currentTimeWalls + startTime - pausedTime)/2);
 		}else if(move == 0 && firstStop == 0){
-			// currentTimeWalls = currentTimeWalls;
 			pausedBegin = currentTimeWalls;
 			firstStart = 1;
 			firstStop = 1;
 		}else if(move == 0 && firstStop == 1){
 			pausedEnd = startTime;
 		}else if(move == 1 && firstStart == 1){
-			// currentTimeWalls = (pausedBegin + startTime)/2;
 			currentTimeWalls = pausedBegin;
 			startTime = pausedEnd - pausedBegin;
 			pausedTime = pausedEnd - pausedBegin;
 			firstStart = 0;
 			firstStop = 0;
 		}
-		printf("currentTimeWalls %f \n", currentTimeWalls);
 
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.2,0.0,0.0,0.0);
@@ -391,10 +362,12 @@ int main(int argc, char** argv)
 				// displayWalls(walls, speed, currentTimeWalls);
 			// }
 			// glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, texture[2]);
 			
-            drawSphere();
-			drawRacket();
+			glPushMatrix();
+            	glBindTexture(GL_TEXTURE_2D, texture[2]);
+            	drawSphere();
+				drawRacket();
+			glPopMatrix();
 		}
 
 		if(mode == 2){ //page de fin
